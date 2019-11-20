@@ -1,0 +1,236 @@
+using System;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using NUnit.Framework;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Support.UI;
+
+namespace SeleniumTests
+{
+    [TestFixture]
+    public class JDPowerPage
+    {
+        private IWebDriver driver;
+        private StringBuilder verificationErrors;
+        private string baseURL;
+        private bool acceptNextAlert = true;
+
+        [SetUp]
+        public void SetupTest()
+        {
+            driver = new FirefoxDriver();
+            baseURL = "https://www.jdpower.com/Cars/2015/BMW";
+            verificationErrors = new StringBuilder();
+        }
+
+        [TearDown]
+        public void TeardownTest()
+        {
+            try
+            {
+                driver.Quit();
+            }
+            catch (Exception)
+            {
+                // Ignore errors if unable to close the browser
+            }
+            Assert.AreEqual("", verificationErrors.ToString());
+        }
+        [Test]
+        public void TheSearchTest()
+        {
+            driver.Navigate().GoToUrl("http://localhost/SellCar/index.html");
+            driver.FindElement(By.LinkText("Search")).Click();
+            driver.FindElement(By.Id("searchBox")).Click();
+            driver.FindElement(By.Id("searchBox")).Clear();
+            driver.FindElement(By.Id("searchBox")).SendKeys("bmw");
+            driver.FindElement(By.Id("searchBox")).SendKeys(Keys.Enter);
+            Assert.AreEqual("Search Car", driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Add New Car'])[1]/following::h2[1]")).Text);
+        }
+        [Test]
+        public void TheAllFieldsRequiredTest()
+        {
+            driver.Navigate().GoToUrl("http://localhost/SellCar/cars.html");
+            driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Please fill out this field.'])[8]/following::button[1]")).Click();
+            Assert.AreEqual("Please fill out this field.", driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Valid.'])[3]/following::div[1]")).Text);
+        }
+
+        [Test]
+        public void TheInvalidNumberTest()
+        {
+            driver.Navigate().GoToUrl("http://localhost/SellCar/cars.html");
+            driver.FindElement(By.Id("sellerName")).Click();
+            driver.FindElement(By.Id("sellerName")).Click();
+            driver.FindElement(By.Id("sellerName")).Clear();
+            driver.FindElement(By.Id("sellerName")).SendKeys("sandeep");
+            driver.FindElement(By.Id("phone")).Click();
+            driver.FindElement(By.Id("phone")).Click();
+            driver.FindElement(By.Id("phone")).Click();
+            driver.FindElement(By.Id("phone")).Clear();
+            driver.FindElement(By.Id("phone")).SendKeys("23099396512");
+            driver.FindElement(By.Id("emailAddress")).Click();
+            driver.FindElement(By.Id("emailAddress")).Click();
+            driver.FindElement(By.Id("emailAddress")).Clear();
+            driver.FindElement(By.Id("emailAddress")).SendKeys("sandeep.vr220@gmail.com");
+            driver.FindElement(By.Id("vehicleModel")).Click();
+            driver.FindElement(By.Id("vehicleModel")).Click();
+            driver.FindElement(By.Id("vehicleModel")).Clear();
+            driver.FindElement(By.Id("vehicleModel")).SendKeys("legacy");
+            driver.FindElement(By.Id("address")).Click();
+            driver.FindElement(By.Id("address")).Click();
+            driver.FindElement(By.Id("address")).Clear();
+            driver.FindElement(By.Id("address")).SendKeys("58 banting cresent");
+            driver.FindElement(By.Id("city")).Click();
+            driver.FindElement(By.Id("city")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=city | ]]
+            driver.FindElement(By.Id("city")).Clear();
+            driver.FindElement(By.Id("city")).SendKeys("brampton");
+            driver.FindElement(By.Id("vehicleMake")).Click();
+            driver.FindElement(By.Id("vehicleMake")).Click();
+            driver.FindElement(By.Id("vehicleMake")).Clear();
+            driver.FindElement(By.Id("vehicleMake")).SendKeys("subaru");
+            driver.FindElement(By.Id("vehicleYear")).Click();
+            driver.FindElement(By.Id("vehicleYear")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=vehicleYear | ]]
+            driver.FindElement(By.Id("vehicleYear")).Clear();
+            driver.FindElement(By.Id("vehicleYear")).SendKeys("2013");
+            driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Please fill out this field.'])[8]/following::button[1]")).Click();
+            Assert.AreEqual("Please fill out this field.", driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Valid.'])[3]/following::div[1]")).Text);
+        }
+        [Test]
+        public void TheErrorTest()
+        {
+            driver.Navigate().GoToUrl("http://localhost/SellCar/cars.html");
+            driver.FindElement(By.Id("sellerName")).Click();
+            driver.FindElement(By.Id("sellerName")).Click();
+            driver.FindElement(By.Id("sellerName")).Clear();
+            driver.FindElement(By.Id("sellerName")).SendKeys("sandeep");
+            driver.FindElement(By.Id("phone")).Click();
+            driver.FindElement(By.Id("phone")).Clear();
+            driver.FindElement(By.Id("phone")).SendKeys("2039939651");
+            driver.FindElement(By.Id("emailAddress")).Click();
+            driver.FindElement(By.Id("emailAddress")).Click();
+            driver.FindElement(By.Id("emailAddress")).Clear();
+            driver.FindElement(By.Id("emailAddress")).SendKeys("sandeep.vr220@gmail.com");
+            driver.FindElement(By.Id("vehicleModel")).Click();
+            driver.FindElement(By.Id("vehicleModel")).Click();
+            driver.FindElement(By.Id("vehicleModel")).Clear();
+            driver.FindElement(By.Id("vehicleModel")).SendKeys("320i");
+            driver.FindElement(By.Id("address")).Click();
+            driver.FindElement(By.Id("address")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=address | ]]
+            driver.FindElement(By.Id("address")).Clear();
+            driver.FindElement(By.Id("address")).SendKeys("58 banting cresent");
+            driver.FindElement(By.Id("city")).Click();
+            driver.FindElement(By.Id("city")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=city | ]]
+            driver.FindElement(By.Id("city")).Clear();
+            driver.FindElement(By.Id("city")).SendKeys("brampton");
+            driver.FindElement(By.Id("vehicleMake")).Click();
+            driver.FindElement(By.Id("vehicleMake")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=vehicleMake | ]]
+            driver.FindElement(By.Id("vehicleMake")).Clear();
+            driver.FindElement(By.Id("vehicleMake")).SendKeys("BMW");
+            driver.FindElement(By.Id("vehicleYear")).Click();
+            driver.FindElement(By.Id("vehicleYear")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=vehicleYear | ]]
+            driver.FindElement(By.Id("vehicleYear")).Clear();
+            driver.FindElement(By.Id("vehicleYear")).SendKeys("2015");
+            driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Please fill out this field.'])[8]/following::button[1]")).Click();
+            Assert.AreEqual("Phone Numbers:", driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Please fill out this field.'])[2]/following::label[1]")).Text);
+        }
+
+        [Test]
+        public void TheJDPowerPageTest()
+        {
+            driver.Navigate().GoToUrl("http://localhost/SellCar/serach.html");
+            driver.FindElement(By.LinkText("Add New Car")).Click();
+            driver.FindElement(By.Id("sellerName")).Click();
+            driver.FindElement(By.Id("sellerName")).Click();
+            driver.FindElement(By.Id("sellerName")).Clear();
+            driver.FindElement(By.Id("sellerName")).SendKeys("sandeep");
+            driver.FindElement(By.Id("phone")).Click();
+            driver.FindElement(By.Id("phone")).Click();
+            driver.FindElement(By.Id("phone")).Clear();
+            driver.FindElement(By.Id("phone")).SendKeys("905-334-4959");
+            driver.FindElement(By.Id("emailAddress")).Click();
+            driver.FindElement(By.Id("emailAddress")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=emailAddress | ]]
+            driver.FindElement(By.Id("emailAddress")).Clear();
+            driver.FindElement(By.Id("emailAddress")).SendKeys("sandeep.vr220@gmail.com");
+            driver.FindElement(By.Id("vehicleModel")).Click();
+            driver.FindElement(By.Id("vehicleModel")).Click();
+            // ERROR: Caught exception [ERROR: Unsupported command [doubleClick | id=vehicleModel | ]]
+            driver.FindElement(By.Id("vehicleModel")).Clear();
+            driver.FindElement(By.Id("vehicleModel")).SendKeys("320i");
+            driver.FindElement(By.Id("address")).Click();
+            driver.FindElement(By.Id("address")).Click();
+            driver.FindElement(By.Id("address")).Clear();
+            driver.FindElement(By.Id("address")).SendKeys("58 banting cresent");
+            driver.FindElement(By.Id("city")).Click();
+            driver.FindElement(By.Id("city")).Click();
+            driver.FindElement(By.Id("city")).Clear();
+            driver.FindElement(By.Id("city")).SendKeys("brampton");
+            driver.FindElement(By.Id("vehicleMake")).Click();
+            driver.FindElement(By.Id("vehicleMake")).Click();
+            driver.FindElement(By.Id("vehicleMake")).Clear();
+            driver.FindElement(By.Id("vehicleMake")).SendKeys("BMW");
+            driver.FindElement(By.Id("vehicleYear")).Click();
+            driver.FindElement(By.Id("vehicleYear")).Clear();
+            driver.FindElement(By.Id("vehicleYear")).SendKeys("2015");
+            driver.FindElement(By.XPath("(.//*[normalize-space(text()) and normalize-space(.)='Please fill out this field.'])[8]/following::button[1]")).Click();
+            driver.FindElement(By.LinkText("JD Power Link")).Click();
+            Assert.AreEqual("2 Series", driver.FindElement(By.LinkText("2 Series")).Text);
+        }
+
+        private bool IsElementPresent(By by)
+        {
+            try
+            {
+                driver.FindElement(by);
+                return true;
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+        }
+
+        private bool IsAlertPresent()
+        {
+            try
+            {
+                driver.SwitchTo().Alert();
+                return true;
+            }
+            catch (NoAlertPresentException)
+            {
+                return false;
+            }
+        }
+
+        private string CloseAlertAndGetItsText()
+        {
+            try
+            {
+                IAlert alert = driver.SwitchTo().Alert();
+                string alertText = alert.Text;
+                if (acceptNextAlert)
+                {
+                    alert.Accept();
+                }
+                else
+                {
+                    alert.Dismiss();
+                }
+                return alertText;
+            }
+            finally
+            {
+                acceptNextAlert = true;
+            }
+        }
+    }
+}
